@@ -1,65 +1,94 @@
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class razdelenieDolgoe {
 
 
 
-    public static void main(String[] args) {
-        Scanner s = new Scanner(System.in);
-        int count = s.nextInt();
-        ArrayList<figure1> figures = new ArrayList<>();
-        for(int i=0;i<=count;i++){
-            String[] strings = s.nextLine().split(" ");
-            if(strings[0].equals("0")){
-                figures.add(new figure1(strings));
-            }
-            else{
-                figures.add(new figure1(strings));
-            }
+    public static void main(String[] args) throws FileNotFoundException {
+        File file = new File("input.txt");
+        Scanner s = new Scanner(file);
+        int count = Integer.valueOf(s.nextLine());
+        figure1[] figures = new figure1[count];
+        for(int i=0;i<count;i++){
+            StringBuilder strings = new StringBuilder(s.nextLine());
+            figures[i]=(new figure1(strings));
         }
-        if (figures.size()==1)
+        if (figures.length==1)
             System.out.println("Yes");
         else if(ChekLine(figures))
             System.out.println("Yes");
         else System.out.println("No");
-
     }
 
-    public static boolean ChekLine(ArrayList<figure1> figures){
+    public static boolean ChekLine(figure1[] figures){
         boolean flag = true;
-        double k = (figures.get(1).y-figures.get(0).y)/(figures.get(1).x-figures.get(0).x);
-        double b = figures.get(0).y-figures.get(0).x*(figures.get(1).y-figures.get(0).y)/(figures.get(1).x-figures.get(0).x);
-        for(int i =2; i<figures.size();i++){
-            double a = figures.get(i).y-k*figures.get(i).x-b;
-            if (!(a<0.01&&a>-0.01)){
+        float k,b;
+        int i =0;
+        while (true) {
+            if(!(figures[i].equals(figures[i+1]))){
+            k = (figures[1].y - figures[0].y) / (figures[1].x - figures[0].x);
+            b = figures[0].y - figures[0].x * (figures[1].y - figures[0].y) / (figures[1].x - figures[0].x);
+            break;
+            }
+            else {
+                i++;
+                    if (i==figures.length-1) {
+                        return true;
+                    }
+            }
+        }
+        for (int j = 0; j < i; j++){
+            float a = figures[j].y - k * figures[j].x - b;
+            if (!(a==0)) {
                 flag = false;
                 break;
             }
         }
+            for (int j = i+2; j < figures.length; j++){
+                float a = figures[j].y - k * figures[j].x - b;
+                if (!(a==0)) {
+                    flag = false;
+                    break;
+                }
+            }
         return flag;
     }
 }
-
-
-class figure1 {
-    double x,y;
-
-    public figure1(String[] strings) {
-        if (strings[0].equals("0")){
+class figure1{
+    float x,y;
+    public figure1(StringBuilder strings) {
+        if (strings.substring(0,strings.indexOf(" ")).equals("0")){
             this.setXYCircle(strings);
         }
-        if(strings[0].equals("1")){
+        else{
             this.setXYSquare(strings);
         }
     }
 
-    public void setXYCircle(String[] strings) {
-        x = Integer.valueOf(strings[2]);
-        y = Integer.valueOf(strings[3]);
+    public void setXYCircle(StringBuilder strings) {
+        strings.delete(0,strings.indexOf(" ")+1).delete(0,strings.indexOf(" ")+1);
+        x = Integer.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1);
+        y = Integer.valueOf(strings.substring(0));
     }
-    public void setXYSquare(String[] strings) {
-        x = (Double.valueOf(strings[1])+Double.valueOf(strings[5]))/2;
-        y = (Double.valueOf(strings[2])+Double.valueOf(strings[6]))/2;
+    public void setXYSquare(StringBuilder strings) {
+        strings.delete(0,strings.indexOf(" ")+1);
+        x = Float.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1);
+        y = Float.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1).delete(0,strings.indexOf(" ")+1);
+        x+=Float.valueOf(strings.substring(0,strings.indexOf(" ")));
+        x/=2;
+        strings.delete(0,strings.indexOf(" ")+1);
+        y+=Float.valueOf(strings.substring(0,strings.indexOf(" ")));
+        y/=2;
+    }
+
+
+    public boolean equals(figure1 other) {
+        return this.x==other.x&&this.y==other.y;
     }
 }
+
