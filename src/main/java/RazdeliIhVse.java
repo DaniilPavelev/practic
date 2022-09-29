@@ -6,116 +6,107 @@
 //что провести такую прямую вообще возможно, и просят вас ответить на этот вопрос.
 
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Scanner;
-
 public class RazdeliIhVse {
-    public static void main(String[] args) {
-        Scanner s = new Scanner(System.in);
-        boolean yesOrNotCrk=false;
-        boolean yesOrNotSq = false;
-        int count = s.nextInt();
-        ArrayList<double[]> circules = new ArrayList<>();
-        ArrayList<double[]> squares = new ArrayList<>();
-        for(int i=0;i<=count;i++){
-            String[] strings = s.nextLine().split(" ");
-            if(strings[0].equals("0")){
-                circules.add(setXYCircle(strings));
-            }
-            if(strings[0].equals("1")){
-                squares.add(setXYSquare(strings));
-            }
+    public static void main(String[] args) throws FileNotFoundException {
+        File file = new File("input.txt");
+        Scanner s = new Scanner(file);
+        int count = Integer.valueOf(s.nextLine());
+        int countI=2;
+        double[] coord1 = new double[2];
+        double[] coord2 = new double[2];
+        boolean flag=true;
+        boolean isDiffirent=true;
+        if(count==1||count==2){
+            System.out.println("Yes");
         }
-        for (int i =0; i<1;i++){
-            if(squares.size()==1&&circules.size()==0){
-                System.out.println("Yes");
-                break;
-            }
-            else if(circules.size()==1&&squares.size()==0){
-                System.out.println("Yes");
-                break;
-            }
-            else if(squares.size()==1&&circules.size()==1){
-                System.out.println("Yes");
-                break;
-            }
-            else if((circules.size()>1&&!ChekLine(circules))){
-                System.out.println("No");
-                break;
-            }
-            else if(squares.size()==0){
-                System.out.println("Yes");
-            }
-            else if(squares.size()>1&&!ChekLine((squares))){
-                System.out.println("No");
-                break;
-            }
-            else if(circules.size()==0){
-                System.out.println("Yes");
-                break;
-            }
-            else if(squares.size()==1&&circules.size()>1){
-                if(funk1(circules.get(0),circules.get(1),squares.get(0)))
-                    System.out.println("Yes");
-                else System.out.println("No");
-            }
-            else if(circules.size()==1&&squares.size()>1){
-                if(funk1(squares.get(0),squares.get(1),circules.get(0)))
-                    System.out.println("Yes");
-                else System.out.println("No");
-            }
-            else if(squares.size()>=2&&circules.size()>=2) {
-                if (funk(circules.get(0), circules.get(1), squares.get(0), squares.get(1))) {
-                    System.out.println("Yes");
+        else {
+            StringBuilder str1 = new StringBuilder(s.nextLine());
+            coord1 = giveCenter(str1);
+            StringBuilder str2 = new StringBuilder(s.nextLine());
+            coord2 = giveCenter(str2);
+            while (equality(coord1,coord2)) {
+                coord2 = giveCenter(new StringBuilder(s.nextLine()));
+                    countI++;
+                    if (countI == count) {
+                        System.out.println("Yes");
+                        isDiffirent = false;
+                        break;
+                    }
                 }
-                else System.out.println("No");
             }
-        }
-
-
-    }
-
-    private static boolean funk(double[] f1, double[] f2, double[] f3, double[] f4) {
-        double k1 = (f2[1]-f1[1])/(f2[0]-f1[0]);
-        double b1 = f1[1]-f1[0]*(f2[1]-f1[1])/(f2[0]-f1[0]);
-        double k2 = (f4[1]-f3[1])/(f4[0]-f3[0]);
-        double b2 = f3[1]-f3[0]*(f4[1]-f3[1])/(f4[0]-f3[0]);
-        return k1-k2<0.001&&k1-k2>-0.001&&b1-b2<0.001&&b1-b2>-0.001;
-    }
-
-    private static boolean funk1(double[] f1, double[] f2, double[] f3){
-        double k1 = (f2[1]-f1[1])/(f2[0]-f1[0]);
-        double b1 = f1[1]-f1[0]*(f2[1]-f1[1])/(f2[0]-f1[0]);
-        double a = f3[1]-k1*f3[0]-b1;
-        return (a<0.01&&a>-0.01);
-    }
-
-    public static boolean ChekLine(ArrayList<double[]> figures){
-        if(figures.isEmpty())
-            return true;
-        boolean flag = true;
-        double k = (figures.get(1)[1]-figures.get(0)[1])/(figures.get(1)[0]-figures.get(0)[0]);
-        double b = figures.get(0)[1]-figures.get(0)[0]*(figures.get(1)[1]-figures.get(0)[1])/(figures.get(1)[0]-figures.get(0)[0]);
-        for(int i =2; i<figures.size();i++){
-            double a = figures.get(i)[1]-k*figures.get(i)[0]-b;
-            if (!(a<0.01&&a>-0.01)){
-                flag = false;
-                break;
+            if (isDiffirent&&count>2){
+                for (int i = countI; i < count; i++) {
+                    if (!ChekLine(coord1[0], coord1[1],coord2[0], coord2[1] , new StringBuilder(s.nextLine()))) {
+                        System.out.println("No");
+                    flag = false;
+                    break;
+                }
             }
+            if (flag) System.out.println("Yes");
+
+            }
+    }
+
+    public static boolean equality(double[] f1, double[] f2){
+        return (f1[0]-f2[0])<0.001&&(f1[0]-f2[0])>-0.001&&(f1[1]-f2[1])<0.001&&(f1[1]-f2[1])>-0.001;
+    }
+    public static boolean ChekLine(double x1, double y1,double x2, double y2, StringBuilder str){
+        double [] coord = giveCenter(str);
+        double[] coordV1 = giveCoordVector(x2,y2,x1,y1);
+        double[] coordV2 = giveCoordVector(coord[0],coord[1],x1,y1);
+        double[] coordVector = giveUmnoh(coordV1, coordV2);
+        double L = coordVector[2];
+        return L==0;
+    }
+
+    private static double[] giveUmnoh(double[] b, double[] a) {
+        double[] coord = new double[3];
+        coord[0] = 0;
+        coord[1] = 0;
+        coord[2] = a[0]*b[1]-a[1]*b[0];
+        return  coord;
+    }
+
+    private static double[] giveCoordVector(double x1, double y1, double x2, double y2) {
+        double[] coord = new double[3];
+        coord[0] = x2-x1;
+        coord[1] = y2-y1;
+        coord[2] = 0;
+        return coord;
+    }
+
+    public static double[] giveCenter(StringBuilder strings) {
+        if (strings.substring(0,strings.indexOf(" ")).equals("0")){
+           return setXYCircle(strings);
         }
-        return flag;
+        else{
+            return setXYSquare(strings);
+        }
     }
-    public static double[] setXYSquare(String[] strings) {
-        double[] XY= new double[2];
-        XY[0] = (Double.valueOf(strings[1])+Double.valueOf(strings[5]))/2;
-        XY[1] = (Double.valueOf(strings[2])+Double.valueOf(strings[6]))/2;
-        return XY;
+    public static double[] setXYCircle(StringBuilder strings) {
+        double[] coord = new double[2];
+        strings.delete(0,strings.indexOf(" ")+1).delete(0,strings.indexOf(" ")+1);
+        coord[0] = Double.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1);
+        coord[1] = Double.valueOf(strings.substring(0));
+        return coord;
     }
-    public static double[] setXYCircle(String[] strings) {
-        double[] XY= new double[2];
-        XY[0] = Integer.valueOf(strings[2]);
-        XY[1] = Integer.valueOf(strings[3]);
-        return XY;
+    public static double[] setXYSquare(StringBuilder strings) {
+        double[] coord = new double[2];
+        strings.delete(0,strings.indexOf(" ")+1);
+        coord[0] = Double.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1);
+        coord[1] = Double.valueOf(strings.substring(0,strings.indexOf(" ")));
+        strings.delete(0,strings.indexOf(" ")+1).delete(0,strings.indexOf(" ")+1);
+        coord[0]+=Double.valueOf(strings.substring(0,strings.indexOf(" ")));
+        coord[0]/=2;
+        strings.delete(0,strings.indexOf(" ")+1);
+        coord[1]+=Double.valueOf(strings.substring(0,strings.indexOf(" ")));
+        coord[1]/=2;
+        return coord;
     }
 }
 

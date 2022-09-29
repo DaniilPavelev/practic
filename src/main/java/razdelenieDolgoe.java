@@ -23,7 +23,6 @@ public class razdelenieDolgoe {
     }
 
     public static boolean ChekLine(figure1[] figures){
-        boolean flag = true;
         float k,b;
         int i =0;
         while (true) {
@@ -34,26 +33,24 @@ public class razdelenieDolgoe {
             }
             else {
                 i++;
-                    if (i==figures.length-1) {
+                    if (i>=figures.length-1) {
                         return true;
                     }
             }
         }
         for (int j = 0; j < i; j++){
             float a = figures[j].y - k * figures[j].x - b;
-            if (!(a==0)) {
-                flag = false;
-                break;
+            if (!(a<0.01&&a>-0.01)) {
+                return false;
             }
         }
             for (int j = i+2; j < figures.length; j++){
                 float a = figures[j].y - k * figures[j].x - b;
                 if (!(a==0)) {
-                    flag = false;
-                    break;
+                    return false;
                 }
             }
-        return flag;
+            return true;
     }
 }
 class figure1{
